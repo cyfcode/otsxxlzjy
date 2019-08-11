@@ -1,0 +1,8 @@
+node_modules
+.idea
+runtime
+dist
+thinkphp
+public
+cltphp_db.sql
+database.sql

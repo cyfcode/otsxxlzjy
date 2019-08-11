@@ -1,0 +1,129 @@
+{include file="common/head"/}
+<style>
+.layui-card-header {
+    font-size: 20px;
+}
+.zhangdan ul li{
+    list-style: circle;
+}
+.zhangdan ul li.sum{
+    margin-top: 30px;
+    font-size: 20px;
+    color: #00a093;
+}
+</style>
+<div class="admin-main layui-anim layui-anim-upbit" ng-app="hd" ng-controller="ctrl">
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>{$title}</legend>
+    </fieldset>
+    <blockquote class="layui-elem-quote">预约状态:
+        {switch name="info.status" }
+        {case value="1" break="1"}已预约，未取车
+        <button class="layui-btn layui-btn-sm" data-method="handle1">取车</button>
+        {/case}
+        {case value="2" break="1"}已取车，未还车
+        <button class="layui-btn layui-btn-normal" data-method="handle2">还车</button>
+        {/case}
+        {case value="3" break="1"}已还车，已完成{/case}
+        {/switch}
+    </blockquote>
+    <div class="layui-card">
+        <div class="layui-card-header" style="font-weight: bold">会员信息</div>
+        <div class="layui-card-body">
+            <ul>
+                <li>会员帐号：{$userInfo.mobile ? $userInfo.mobile : $userInfo.email}</li>
+                <li>会员姓名：{$userInfo.username}</li>
+            </ul>
+        </div>
+    </div>
+    <div class="layui-card">
+        <div class="layui-card-header" style="font-weight: bold">租车人信息</div>
+        <div class="layui-card-body">
+            <ul>
+                <li>姓名：{$info.user_name}</li>
+                <li>联系电话：{$info.tel}</li>
+                <li>Email{$info.email}</li>
+            </ul>
+        </div>
+    </div>
+    <div class="layui-card">
+        <div class="layui-card-header" style="font-weight: bold">租车信息</div>
+        <div class="layui-card-body">
+            <ul>
+                <li>订单号：{$info.id}</li>
+                <li>开单时间：{$info.createtime}</li>
+                <li>车型：{$carInfo.brand} {$carInfo.title} <br>
+                    <img src="{$carInfo.thumb}">
+                </li>
+                <li>取车：{$info.from_address} {$info.from_time}</li>
+                <li>还车：{$info.to_address} {$info.to_time}</li>
+            </ul>
+        </div>
+    </div>
+    <div class="layui-card zhangdan">
+        <div class="layui-card-header" style="font-weight: bold">帐单信息</div>
+        <div class="layui-card-body">
+            <ul>{:htmlspecialchars_decode($info.zhangdan)}</ul>
+        </div>
+    </div>
+    <blockquote class="layui-elem-quote">
+        <button class="layui-btn layui-btn-sm layui-btn-danger" data-method="handle3">删除订单</button>
+    </blockquote>
+</div>
+{include file="common/foot"/}
+<script src="https://cdn.bootcss.com/axios/0.18.0/axios.min.js"></script>
+<script>
+    layui.use('layer', function(){
+        var $ = layui.jquery, layer = layui.layer;
+        //触发事件
+        var active = {
+            handle1: function(){
+                //配置一个透明的询问框
+                layer.msg('请确定是否需要取车操作', {
+                    time: 20000, //20s后自动关闭
+                    btn: ['取车', '取消'],
+                    btn1:function(){
+                        toStep(2);
+                    }
+                });
+            },
+            handle2: function(){
+                //配置一个透明的询问框
+                layer.msg('请确定是否需要还车操作', {
+                    time: 20000, //20s后自动关闭
+                    btn: ['还车', '取消'],
+                    btn1:function(){
+                        toStep(3);
+                    }
+                });
+            },
+            handle3: function(){
+                //配置一个透明的询问框
+                layer.msg('请确定要删除订单操作', {
+                    time: 20000, //20s后自动关闭
+                    btn: ['删除', '取消'],
+                    btn1:function(){
+                        axios.post("{:url('toDel')}", {
+                            id: '{$info.id}'
+                        }).then(function(res){
+                            history.back();
+                        })
+                    }
+                });
+            }
+        };
+        $('.layui-btn').on('click', function(){
+            var othis = $(this), method = othis.data('method');
+            active[method] ? active[method].call(this, othis) : '';
+        });
+
+        function toStep(step) {
+            axios.post("{:url('toStep')}", {
+                step: step,
+                orderId: '{$info.id}'
+            }).then(function(res){
+                location.reload();
+            })
+        }
+    });
+</script>
