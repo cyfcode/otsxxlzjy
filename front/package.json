@@ -10,7 +10,7 @@
     "build": "node build/build.js"
   },
   "dependencies": {
-    "swiper": "^4.3.3",
+    "swiper": "^6.5.1",
     "vue": "^2.5.2"
   },
   "devDependencies": {
